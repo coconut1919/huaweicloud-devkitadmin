@@ -53,7 +53,7 @@
           <div class="sub-section-title">开发者相关</div>
           <div class="kpi-grid">
             <KpiCard
-              label="开发者总数"
+              label="登录开发者总数"
               :value="fmt(store.developerSummary?.totalDevelopers)"
               trend="↑ 较上月增长"
               trend-dir="up"
@@ -69,7 +69,7 @@
               </template>
             </KpiCard>
             <KpiCard
-              label="Agent接入总数"
+              label="登录 Agent 接入总数"
               :value="fmt(store.developerSummary?.agentTotal)"
               trend="↑ 较上月增长"
               trend-dir="up"
@@ -77,15 +77,22 @@
               icon="🤖"
             />
             <KpiCard
-              label="日活跃数（DAU）"
+              label="登录日活（DAU）"
               :value="fmt(store.developerSummary?.dau)"
               :trend="`${dayWord}活跃`"
               trend-dir="up"
               accent="cyan"
               icon="☀️"
-            />
+            >
+              <template #badge>
+                <div class="kpi-badge guest-badge">
+                  <div class="badge-label">游客日活会话</div>
+                  <div class="badge-num">{{ fmt(store.developerSummary?.guestDau) }}</div>
+                </div>
+              </template>
+            </KpiCard>
             <KpiCard
-              label="月活跃数（MAU）"
+              label="登录月活（MAU）"
               :value="fmt(store.developerSummary?.mau)"
               trend="近30天活跃"
               trend-dir="up"
@@ -94,8 +101,31 @@
             />
           </div>
           <div class="chart-row two">
-            <ChartCard title="DAU / MAU 趋势（近30天）" desc="日活和月活趋势" :option="dauTrendOpt" :height="320" />
-            <ChartCard title="新增用户趋势（环比 vs 同比）" desc="近6个月每月新增用户及增长率" :option="newUserTrendOpt" :height="320" />
+            <ChartCard title="登录用户 DAU / MAU 趋势（近30天）" desc="仅统计已解析 domain 的登录用户" :option="dauTrendOpt" :height="320" />
+            <ChartCard title="登录用户新增趋势（环比 vs 同比）" desc="近6个月登录新增用户及增长率" :option="newUserTrendOpt" :height="320" />
+          </div>
+
+          <div class="metric-note">
+            登录指标 = 已解析到 domain 的账号；游客指标 = 未解析临时凭证的会话数，不是用户数，不能与登录用户相加。
+          </div>
+          <div class="sub-section-title" style="margin-top:24px">游客活跃（会话数，不是用户数）</div>
+          <div class="kpi-grid">
+            <KpiCard
+              label="游客 30 天活跃会话"
+              :value="fmt(store.developerSummary?.guestMauSessions)"
+              trend="近30天 distinct fallback hash"
+              trend-dir="flat"
+              accent="orange"
+              icon="🚶"
+            />
+          </div>
+          <div class="chart-row one">
+            <ChartCard
+              title="游客日活会话（会话数）"
+              desc="每日未解析临时凭证会话数（distinct fallback hash）；不是用户数，不可与登录 DAU 直接比较"
+              :option="guestSessionOpt"
+              :height="280"
+            />
           </div>
 
           <!-- 插件的开发者画像 -->
@@ -127,8 +157,8 @@
             />
           </div>
           <div class="chart-row two">
-            <ChartCard title="Agent 接入数量Top15（按种类分布）" desc="按Agent名称合并统计（不区分平台，屏蔽test开头，仅展示Top15）" :option="agentDistOpt" :height="320" />
-            <ChartCard title="devkit 客户端版本分布（Top20）" desc="按用户使用的客户端版本（plugin_version）去重用户统计" :option="versionDistOpt" :height="320" />
+            <ChartCard title="Agent 接入数量Top15（按种类分布）" desc="仅登录用户（domain 账号）；按Agent名称合并统计（不区分平台，屏蔽test开头，仅展示Top15）" :option="agentDistOpt" :height="320" />
+            <ChartCard title="devkit 客户端版本分布（Top20）" desc="仅登录用户；按客户端版本（plugin_version）去重用户统计" :option="versionDistOpt" :height="320" />
             <ChartCard title="下载渠道占比" desc="GitHub vs npm 下载量占比分布" :option="downloadPieOpt" :height="320" />
           </div>
           <div class="chart-row one">
@@ -529,7 +559,7 @@ import { ALL_ACTIVITY_CODE } from './data/activity-config'
 import type { ActivityStatsItem } from '@/api/activity'
 import {
   getEmptyChartOption,
-  buildDauTrendOption, buildAgentDistributionOption, buildVersionDistributionOption, buildNewUserTrendOption,
+  buildDauTrendOption, buildGuestSessionOption, buildAgentDistributionOption, buildVersionDistributionOption, buildNewUserTrendOption,
   buildDownloadPieOption, buildDownloadTrendOption,
   buildCapabilityTrendOption, buildCapabilityPieOption, buildSkillRankOption,
   buildSandboxTrendOption, buildSandboxDurationOption, buildSandboxHourlyOption,
@@ -771,6 +801,11 @@ onBeforeUnmount(() => {
 const dauTrendOpt = computed(() =>
   store.dauTrend.length
     ? buildDauTrendOption(store.dauTrend)
+    : getEmptyChartOption()
+)
+const guestSessionOpt = computed(() =>
+  store.dauTrend.length
+    ? buildGuestSessionOption(store.dauTrend)
     : getEmptyChartOption()
 )
 const agentDistOpt = computed(() => {
@@ -1158,6 +1193,16 @@ function activityStageStyle(i: number) {
   padding: 24px 0;
   font-size: 12px;
 }
+.metric-note {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+.kpi-badge.guest-badge .badge-num {
+  color: #FAAD14;
+}
+
 .kpi-badge {
   text-align: right;
   padding-left: 16px;

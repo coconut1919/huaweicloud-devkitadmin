@@ -54,6 +54,36 @@ export function buildDauTrendOption(data: Array<{ date: string; dau: number; mau
   }
 }
 
+/** 游客日活会话折线图（distinct AK fallback hash/日，注意单位是会话，不是用户） */
+export function buildGuestSessionOption(data: Array<{ date: string; guestDau: number }>): EChartsOption {
+  if (!data.length) return getEmptyChartOption()
+  return {
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['游客日活会话'], right: 0, top: 0, textStyle: { fontSize: 11 } },
+    grid: { left: 40, right: 20, top: 35, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      data: data.map(d => d.date),
+      ...axisStyle,
+      axisLabel: { ...axisStyle.axisLabel, interval: Math.max(0, Math.floor(data.length / 8)) },
+    },
+    yAxis: { type: 'value', ...axisStyle },
+    series: [
+      {
+        name: '游客日活会话', type: 'line', smooth: true,
+        data: data.map(d => d.guestDau ?? 0),
+        itemStyle: { color: '#FAAD14' },
+        areaStyle: {
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [{ offset: 0, color: 'rgba(250,173,20,0.25)' }, { offset: 1, color: 'rgba(250,173,20,0)' }],
+          },
+        },
+      },
+    ],
+  }
+}
+
 /** Agent 接入分布横向柱状图（接收 API 数据） */
 export function buildAgentDistributionOption(data: Array<{ name: string; count: number }>): EChartsOption {
   const sorted = [...data].sort((a, b) => a.count - b.count)
