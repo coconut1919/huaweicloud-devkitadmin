@@ -1,8 +1,25 @@
 import { describe, it, expect } from 'vitest'
 
-import { buildSandboxIdleOption } from '../charts'
+import { buildGuestSessionOption, buildSandboxIdleOption } from '../charts'
 
 // Issue #134 review: idle 桶颜色按 order 判定（不再用正则）
+describe('buildGuestSessionOption - guest session series', () => {
+  it('maps distinct guest sessions per day and labels them as sessions', () => {
+    const opt = buildGuestSessionOption([
+      { date: '2026-11-01', guestDau: 12 },
+      { date: '2026-11-02', guestDau: 7 },
+    ])
+    expect((opt.legend as any).data).toEqual(['游客日活会话'])
+    expect((opt.xAxis as any).data).toEqual(['2026-11-01', '2026-11-02'])
+    expect((opt.series as any[])[0].data).toEqual([12, 7])
+  })
+
+  it('returns empty option when no data', () => {
+    const opt = buildGuestSessionOption([])
+    expect(opt).toBeTruthy()
+  })
+})
+
 describe('buildSandboxIdleOption - bucket colors by order', () => {
   it('colors buckets correctly: order 1-2 blue, 3-4 orange, 5+ red', () => {
     const buckets = [

@@ -20,12 +20,20 @@ export interface DeveloperSummary {
   dau: number
   mau: number
   agentTotal: number
+  /** 游客日活会话数（distinct AK fallback hash/日），不是用户数 */
+  guestDau: number
+  /** 游客近 30 天活跃会话数（distinct AK fallback hash），不是 MAU 用户 */
+  guestMauSessions: number
 }
 
 export interface DauTrendItem {
   date: string
   dau: number
   mau: number
+  /** 游客日活会话数（distinct AK fallback hash/日） */
+  guestDau: number
+  /** 游客近 30 天活跃会话数 */
+  guestMauSessions: number
 }
 
 export interface AgentDistributionItem {
@@ -495,12 +503,21 @@ export const useDashboardStore = defineStore('dashboard', () => {
       dau: raw.dau ?? 0,
       mau: raw.mau ?? 0,
       agentTotal: raw.agentTotal ?? 0,
+      guestDau: raw.guestDau ?? 0,
+      guestMauSessions: raw.guestMauSessions ?? 0,
     }
   }
 
   async function loadDauTrend(days = 30) {
     const raw: any = unwrapRealtime(await api.getDeveloperTrend(days, dateRange.value))
-    dauTrend.value = raw?.points ?? raw ?? []
+    const points = raw?.points ?? raw ?? []
+    dauTrend.value = Array.isArray(points)
+      ? points.map((p: any) => ({
+          ...p,
+          guestDau: p.guestDau ?? 0,
+          guestMauSessions: p.guestMauSessions ?? 0,
+        }))
+      : []
   }
 
   async function loadAgentDistribution() {
