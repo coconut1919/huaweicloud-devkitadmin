@@ -69,7 +69,7 @@
               </template>
             </KpiCard>
             <KpiCard
-              label="登录 Agent 接入总数"
+              label="Agent接入总数"
               :value="fmt(store.developerSummary?.agentTotal)"
               trend="↑ 较上月增长"
               trend-dir="up"
@@ -157,8 +157,8 @@
             />
           </div>
           <div class="chart-row two">
-            <ChartCard title="Agent 接入数量Top15（按种类分布）" desc="仅登录用户（domain 账号）；按Agent名称合并统计（不区分平台，屏蔽test开头，仅展示Top15）" :option="agentDistOpt" :height="320" />
-            <ChartCard title="devkit 客户端版本分布（Top20）" desc="仅登录用户；按客户端版本（plugin_version）去重用户统计" :option="versionDistOpt" :height="320" />
+            <ChartCard title="Agent 接入数量Top15（按种类分布）" desc="按Agent名称合并统计（不区分平台，屏蔽test开头，仅展示Top15）" :option="agentDistOpt" :height="320" />
+            <ChartCard title="devkit 客户端版本分布（Top20）" desc="按用户使用的客户端版本（plugin_version）去重用户统计" :option="versionDistOpt" :height="320" />
             <ChartCard title="下载渠道占比" desc="GitHub vs npm 下载量占比分布" :option="downloadPieOpt" :height="320" />
           </div>
           <div class="chart-row one">
