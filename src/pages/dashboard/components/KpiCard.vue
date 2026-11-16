@@ -1,10 +1,7 @@
 <template>
   <div class="kpi-card" :class="'accent-' + accent">
     <div class="kpi-main">
-      <div class="label">
-        {{ label }}
-        <span v-if="hint" class="label-hint" :title="hintTitle">{{ hint }}</span>
-      </div>
+      <div class="label">{{ label }}</div>
       <div class="value">{{ value }}<span v-if="unit" class="unit">{{ unit }}</span></div>
       <div v-if="trend" class="trend" :class="trendDir">
         <span>{{ trendIcon }}</span> {{ trend }}
@@ -24,18 +21,12 @@ const props = withDefaults(defineProps<{
   trendDir?: 'up' | 'down' | 'flat'
   accent?: 'blue' | 'green' | 'orange' | 'red' | 'cyan' | 'purple'
   icon?: string
-  /** 标题旁的小标签，如“登录口径” */
-  hint?: string
-  /** 小标签的 tooltip 说明 */
-  hintTitle?: string
 }>(), {
   unit: '',
   trend: '',
   trendDir: 'flat',
   accent: 'blue',
   icon: '',
-  hint: '',
-  hintTitle: '',
 })
 const trendIcon = computed(() => {
   if (props.trendDir === 'up') return '↑'
@@ -73,16 +64,6 @@ const trendIcon = computed(() => {
     font-size: 12px;
     color: #6b7280;
     margin-bottom: 8px;
-    .label-hint {
-      margin-left: 6px;
-      padding: 0 4px;
-      font-size: 10px;
-      color: #9ca3af;
-      border: 1px solid #e5e7eb;
-      border-radius: 4px;
-      cursor: help;
-      white-space: nowrap;
-    }
   }
   .value {
     font-size: 28px;
